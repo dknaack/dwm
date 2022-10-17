@@ -124,6 +124,7 @@ struct Monitor {
 	char ltsymbol[16];
 	float mfact;
 	int nmaster;
+	int tiledir;
 	int num;
 	int by;               /* bar geometry */
 	int mx, my, mw, mh;   /* screen size */
@@ -256,7 +257,6 @@ static pid_t winpid(Window w);
 /* variables */
 static const char broken[] = "broken";
 static char stext[256];
-static int tiledir;
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh;               /* bar height */
@@ -1607,8 +1607,8 @@ setmfact(const Arg *arg)
 void
 settiledir(const Arg *arg)
 {
-	tiledir = arg->i;
-	arrange(NULL);
+	selmon->tiledir = arg->i;
+	arrange(selmon);
 }
 
 void
@@ -1760,8 +1760,8 @@ tile(Monitor *m)
 	if (n == 0)
 		return;
 
-	tl = (tiledir == TileLeft || tiledir == TileUp);
-	if (tiledir == TileLeft || tiledir == TileRight) {
+	tl = (m->tiledir == TileLeft || m->tiledir == TileUp);
+	if (m->tiledir == TileLeft || m->tiledir == TileRight) {
 		if (n > m->nmaster)
 			mw = m->nmaster ? m->ww * m->mfact : 0;
 		else
@@ -2004,6 +2004,7 @@ updategeom(void)
 			{
 				dirty = 1;
 				m->num = i;
+				m->tiledir = tiledir[MIN(i, LENGTH(tiledir) - 1)];
 				m->mx = m->wx = unique[i].x_org;
 				m->my = m->wy = unique[i].y_org;
 				m->mw = m->ww = unique[i].width;
