@@ -72,6 +72,7 @@ enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
 enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms */
 enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
        ClkClientWin, ClkRootWin, ClkLast }; /* clicks */
+enum { TileLeft, TileRight, TileUp, TileDown };
 
 typedef union {
 	int i;
@@ -212,6 +213,7 @@ static void setfocus(Client *c);
 static void setfullscreen(Client *c, int fullscreen);
 static void setlayout(const Arg *arg);
 static void setmfact(const Arg *arg);
+static void settiledir(const Arg *arg);
 static void setup(void);
 static void seturgent(Client *c, int urg);
 static void showhide(Client *c);
@@ -254,6 +256,7 @@ static pid_t winpid(Window w);
 /* variables */
 static const char broken[] = "broken";
 static char stext[256];
+static int tiledir;
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh;               /* bar height */
@@ -1602,6 +1605,13 @@ setmfact(const Arg *arg)
 }
 
 void
+settiledir(const Arg *arg)
+{
+	tiledir = arg->i;
+	arrange(NULL);
+}
+
+void
 setup(void)
 {
 	int i;
@@ -1743,29 +1753,53 @@ tagmon(const Arg *arg)
 void
 tile(Monitor *m)
 {
-	unsigned int i, n, h, mw, my, ty;
+	unsigned int i, n, h, mw, my, ty, tl, mh, mx, tx, w;
 	Client *c;
 
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
 	if (n == 0)
 		return;
 
-	if (n > m->nmaster)
-		mw = m->nmaster ? m->ww * m->mfact : 0;
-	else
-		mw = m->ww;
-	for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
-		if (i < m->nmaster) {
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
-			resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
-			if (my + HEIGHT(c) < m->wh)
-				my += HEIGHT(c);
-		} else {
-			h = (m->wh - ty) / (n - i);
-			resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
-			if (ty + HEIGHT(c) < m->wh)
-				ty += HEIGHT(c);
-		}
+	tl = (tiledir == TileLeft || tiledir == TileUp);
+	switch (tiledir) {
+	case TileLeft:
+	case TileRight:
+		if (n > m->nmaster)
+			mw = m->nmaster ? m->ww * m->mfact : 0;
+		else
+			mw = m->ww;
+		for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
+			if (i < m->nmaster) {
+				h = (m->wh - my) / (MIN(n, m->nmaster) - i);
+				resize(c, m->wx + !tl * (m->ww - mw), m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
+				if (my + HEIGHT(c) < m->wh)
+					my += HEIGHT(c);
+			} else {
+				h = (m->wh - ty) / (n - i);
+				resize(c, m->wx + tl * mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
+				if (ty + HEIGHT(c) < m->wh)
+					ty += HEIGHT(c);
+			}
+		break;
+	case TileUp:
+	case TileDown:
+		if (n > m->nmaster)
+			mh = m->nmaster ? m->wh * m->mfact : 0;
+		else
+			mh = m->wh;
+		for (i = mx = tx = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
+			if (i < m->nmaster) {
+				w = (m->ww - mx) / (MIN(n, m->nmaster) - i);
+				resize(c, m->wx + mx, m->wy + !tl * (m->wh - mh), w - (2*c->bw), mh - (2*c->bw), 0);
+				if (mx + WIDTH(c) < m->ww)
+					mx += WIDTH(c);
+			} else {
+				w = (m->ww - tx) / (n - i);
+				resize(c, m->wx + tx, m->wy + tl * mh, w - (2*c->bw), m->wh - mh - (2*c->bw), 0);
+				if (tx + WIDTH(c) < m->ww)
+					tx += WIDTH(c);
+			}
+	}
 }
 
 void
