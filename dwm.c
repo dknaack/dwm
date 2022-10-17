@@ -1754,8 +1754,10 @@ void
 tile(Monitor *m)
 {
 	unsigned int i, n, h, mw, my, ty, tl, mh, mx, tx, w;
+	static const char *arrows[] = { "←", "→", "↑", "↓" };
 	Client *c;
 
+	snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%s]", arrows[m->tiledir]);
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
 	if (n == 0)
 		return;
