@@ -1761,9 +1761,7 @@ tile(Monitor *m)
 		return;
 
 	tl = (tiledir == TileLeft || tiledir == TileUp);
-	switch (tiledir) {
-	case TileLeft:
-	case TileRight:
+	if (tiledir == TileLeft || tiledir == TileRight) {
 		if (n > m->nmaster)
 			mw = m->nmaster ? m->ww * m->mfact : 0;
 		else
@@ -1780,9 +1778,7 @@ tile(Monitor *m)
 				if (ty + HEIGHT(c) < m->wh)
 					ty += HEIGHT(c);
 			}
-		break;
-	case TileUp:
-	case TileDown:
+	} else {
 		if (n > m->nmaster)
 			mh = m->nmaster ? m->wh * m->mfact : 0;
 		else
