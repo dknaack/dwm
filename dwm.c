@@ -504,6 +504,8 @@ buttonpress(XEvent *e)
 	}
 	if (ev->window == selmon->barwin) {
 		i = x = occ = 0;
+		for (c = m->clients; c; c = c->next)
+			occ |= c->tags;
 		do {
 			if (!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
 				continue;
