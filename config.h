@@ -33,8 +33,8 @@ static const Rule rules[] = {
 	 */
 	/* class          instance  title           tags mask  isfloating  isterminal noswallow  monitor */
 	{ "Gimp",         NULL,     NULL,           0,         1,          0,         0,        -1 },
-	{ "discord",      NULL,     NULL,           1 << 8,    0,          0,         0,         0 },
-	{ "Signal",       NULL,     NULL,           1 << 8,    0,          0,         0,         0 },
+	{ "discord",      NULL,     NULL,           1 << 8,    0,          0,         0,         1 },
+	{ "Signal",       NULL,     NULL,           1 << 8,    0,          0,         0,         1 },
 	{ "st-256color",  NULL,     NULL,           0,         0,          1,         0,        -1 },
 	{ NULL,           NULL,     "Event Tester", 0,         0,          0,         1,        -1 }, /* xev */
 };
@@ -44,7 +44,7 @@ static const float mfact     = 0.55; /* factor of master area size [0.05..0.95] 
 static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
-static const int tiledir[] = { TileUp, TileLeft };
+static const int tiledir[] = { TileLeft, TileUp };
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
